@@ -16,6 +16,9 @@ dependencies = [
 [project.scripts]
 it-inventar = "main:main"
 
+[tool.setuptools]
+py-modules = ["main", "config", "database", "utils"]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["gui*"]
