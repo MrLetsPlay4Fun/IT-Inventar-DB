@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtuelle Umgebung
+venv/
+.venv/
+env/
+.env/
+
+# Anwendungsdaten (NICHT in die Repo einchecken)
+settings.json
+*.db
+*.db-shm
+*.db-wal
+
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
