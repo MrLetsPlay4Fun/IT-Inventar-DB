@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "it-inventar-db"
+version = "1.0.0"
+description = "Lokale IT-Asset-Management-Anwendung zur Verwaltung und Inventarisierung von Geräten und Material"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "customtkinter>=5.2.0",
+]
+
+[project.scripts]
+it-inventar = "main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gui*"]

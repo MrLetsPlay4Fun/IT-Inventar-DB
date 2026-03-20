@@ -2,7 +2,7 @@
 
 Eine einfache, lokale IT-Asset-Management-Anwendung zur Verwaltung und Inventarisierung von Geräten und Material in einer IT-Abteilung.
 
-Gebaut mit Python 3, CustomTkinter und SQLite.
+Gebaut mit **Python 3**, **CustomTkinter** und **SQLite**.
 
 ---
 
@@ -14,14 +14,8 @@ Gebaut mit Python 3, CustomTkinter und SQLite.
 - **Suche & Status-Filter** – Echtzeit-Suche, Filterung nach Status
 - **Autocomplete** – Vorschläge aus bestehenden Einträgen
 - **Datenbankpfad konfigurierbar** – Einstellungsdialog beim ersten Start und jederzeit über den ⚙-Button
+- **Backup & Restore** – Backup erstellen und einspielen direkt in der GUI
 - **Barcode-Scan-Unterstützung** für Lagerbuchungen
-
----
-
-## Voraussetzungen
-
-- **Python 3.10 oder neuer**
-- **Git** (für die Installation per Repo)
 
 ---
 
@@ -29,88 +23,125 @@ Gebaut mit Python 3, CustomTkinter und SQLite.
 
 ### Windows
 
-1. **Git installieren**
-   - Herunterladen von: https://git-scm.com/download/win
-   - Installer ausführen, alle Standardoptionen bestätigen
+#### ✅ Empfohlen: pipx (sauber & isoliert)
 
-2. **Python installieren**
-   - Herunterladen von: https://www.python.org/downloads/
-   - Wichtig: Bei der Installation **"Add Python to PATH"** aktivieren
-   - Nach der Installation prüfen:
-     ```
-     python --version
-     ```
+**1. Python installieren**
+- Herunterladen von: https://www.python.org/downloads/
+- Wichtig: Bei der Installation **„Add Python to PATH"** aktivieren
 
-3. **Repository klonen**
-   - Git Bash oder Eingabeaufforderung (cmd) öffnen:
-     ```
-     git clone https://github.com/DEIN-USERNAME/IT-Inventar-DB.git
-     cd IT-Inventar-DB
-     ```
+**2. Git installieren**
+- Herunterladen von: https://git-scm.com/download/win
+- Installer ausführen, alle Standardoptionen bestätigen
 
-4. **Abhängigkeiten installieren**
-   ```
-   pip install -r requirements.txt
-   ```
+**3. pipx installieren**
 
-5. **Programm starten**
-   ```
-   python main.py
-   ```
-   Beim ersten Start erscheint ein Dialog zum Festlegen des Datenbankverzeichnisses.
+Eingabeaufforderung (cmd) öffnen und ausführen:
+```
+python -m pip install --upgrade pip
+python -m pip install pipx
+python -m pipx ensurepath
+```
+Terminal neu öffnen (damit der Pfad aktiv ist).
+
+**4. Programm installieren & starten**
+```
+pipx install git+https://github.com/MrLetsPlay4Fun/IT-Inventar-DB.git
+it-inventar
+```
+
+---
+
+#### Alternative: Virtualenv (manuell)
+
+```
+git clone https://github.com/MrLetsPlay4Fun/IT-Inventar-DB.git
+cd IT-Inventar-DB
+python -m venv .venv
+.venv\Scripts\activate
+pip install .
+it-inventar
+```
 
 ---
 
 ### macOS
 
-1. **Git installieren**
-   - Git ist auf macOS meist vorinstalliert. Prüfen mit:
-     ```
-     git --version
-     ```
-   - Falls nicht vorhanden: https://git-scm.com/download/mac
-     (oder über Homebrew: `brew install git`)
+#### ✅ Empfohlen: pipx (sauber & isoliert)
 
-2. **Python installieren**
-   - Herunterladen von: https://www.python.org/downloads/
-   - Oder per Homebrew:
-     ```
-     brew install python
-     ```
-   - Nach der Installation prüfen:
-     ```
-     python3 --version
-     ```
+**1. Python & Git installieren**
 
-3. **Repository klonen**
-   ```
-   git clone https://github.com/DEIN-USERNAME/IT-Inventar-DB.git
-   cd IT-Inventar-DB
-   ```
+Homebrew verwenden (https://brew.sh):
+```
+brew install python git pipx
+pipx ensurepath
+```
+Terminal neu öffnen.
 
-4. **Abhängigkeiten installieren**
-   ```
-   pip3 install -r requirements.txt
-   ```
-
-5. **Programm starten**
-   ```
-   python3 main.py
-   ```
-   Beim ersten Start erscheint ein Dialog zum Festlegen des Datenbankverzeichnisses.
+**2. Programm installieren & starten**
+```
+pipx install git+https://github.com/MrLetsPlay4Fun/IT-Inventar-DB.git
+it-inventar
+```
 
 ---
 
-## Datenbankpfad einrichten
+#### Alternative: Virtualenv (manuell)
 
-Beim **ersten Start** öffnet sich automatisch ein Dialog:
+```
+git clone https://github.com/MrLetsPlay4Fun/IT-Inventar-DB.git
+cd IT-Inventar-DB
+python3 -m venv .venv
+source .venv/bin/activate
+pip install .
+it-inventar
+```
 
-- Klicke auf **"Durchsuchen…"** und wähle das Verzeichnis aus, in dem die Datenbank gespeichert werden soll (z. B. ein freigegebener Netzwerkordner für mehrere Nutzer).
-- Klicke auf **"Speichern & Übernehmen"**.
-- Das Verzeichnis wird automatisch erstellt, falls es noch nicht existiert.
-- Der Pfad wird lokal in `settings.json` gespeichert (nicht im Repository, da in `.gitignore`).
+---
+
+## Erster Start
+
+Beim ersten Start erscheint automatisch ein Einrichtungsdialog:
+
+1. Auf **„Durchsuchen…"** klicken
+2. Verzeichnis auswählen, in dem die Datenbank gespeichert werden soll
+   *(z. B. ein lokaler Ordner oder ein freigegebener Netzwerkordner)*
+3. **„Speichern & Übernehmen"** klicken
+
+Das Verzeichnis wird automatisch erstellt, falls es noch nicht existiert.
+Der Pfad wird lokal in `settings.json` gespeichert *(nicht im Repository)*.
 
 Den Datenbankpfad kann man jederzeit über den **⚙ Einstellungen**-Button im Hauptfenster ändern.
+
+---
+
+## Backup & Wiederherstellung
+
+Im Hauptfenster auf **⚙ Einstellungen** → Reiter **📦 Backup**:
+
+| Funktion | Beschreibung |
+|---|---|
+| **📥 Backup erstellen** | Kopiert die aktuelle Datenbank in ein beliebiges Verzeichnis. Dateiname enthält automatisch Datum und Uhrzeit. |
+| **📤 Backup einspielen** | Wählt eine Backup-Datei aus und stellt sie wieder her. Vor dem Überschreiben wird automatisch ein Sicherheits-Backup der aktuellen Datenbank erstellt. |
+
+---
+
+## Aktualisierung
+
+### pipx
+
+```
+pipx upgrade it-inventar-db
+```
+
+### Virtualenv
+
+```
+cd IT-Inventar-DB
+.venv\Scripts\activate        # Windows
+# source .venv/bin/activate   # macOS
+git pull
+pip install .
+```
 
 ---
 
@@ -122,6 +153,7 @@ IT-Inventar-DB/
 ├── config.py                      # Konfiguration & Pfadverwaltung
 ├── database.py                    # Alle Datenbankoperationen
 ├── utils.py                       # Hilfsfunktionen (Datum, ID)
+├── pyproject.toml                 # Paket-Konfiguration & Einstiegspunkt
 ├── requirements.txt               # Python-Abhängigkeiten
 ├── settings.json                  # Lokaler Datenbankpfad (nicht im Repo)
 ├── gui/
@@ -131,29 +163,23 @@ IT-Inventar-DB/
 │       ├── device_dialog.py       # Gerät hinzufügen / bearbeiten
 │       ├── material_dialog.py     # Material hinzufügen / bearbeiten
 │       ├── association_dialogs.py # Verknüpfungsansichten
-│       └── settings_dialog.py    # DB-Pfad Einstellungen
+│       └── settings_dialog.py     # DB-Pfad & Backup
 └── LICENSE
 ```
 
 ---
 
-## Aktualisierung
+## Hinweise für mehrere Benutzer / Netzwerkbetrieb
 
-```
-git pull
-```
+- Jeder Nutzer installiert das Programm lokal (per pipx oder Virtualenv).
+- In den **Einstellungen** wird als Datenbankpfad ein **gemeinsamer Netzwerkordner** eingetragen
+  *(z. B. `\\Server\IT\Inventar` unter Windows oder ein gemountetes Netzlaufwerk unter macOS)*.
+- SQLite unterstützt keinen gleichzeitigen Schreibzugriff mehrerer Nutzer.
+  Für größere Teams empfiehlt sich eine Migration zu PostgreSQL oder MariaDB.
 
 ---
 
 ## Lizenz
 
 Dieses Projekt steht unter der **GNU Affero General Public License v3.0 (AGPLv3)**.
-Vollständiger Lizenztext: https://www.gnu.org/licenses/agpl-3.0.html
-
----
-
-## Hinweise für mehrere Benutzer / Netzwerkbetrieb
-
-- Jeder Nutzer installiert das Programm lokal per `git clone`.
-- In den **Einstellungen** wird als Datenbankpfad ein **gemeinsamer Netzwerkordner** eingetragen (z. B. `\\Server\IT\Inventar` oder ein gemountetes Netzlaufwerk).
-- Die SQLite-Datenbank unterstützt keinen gleichzeitigen Schreibzugriff mehrerer Nutzer. Für größere Teams empfiehlt sich eine Datenbankmigration zu PostgreSQL oder MariaDB.
+Vollständiger Lizenztext: [LICENSE](LICENSE) · https://www.gnu.org/licenses/agpl-3.0.html
