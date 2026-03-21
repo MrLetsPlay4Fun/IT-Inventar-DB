@@ -35,6 +35,8 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
         "Modell*:",
         "Hersteller:",
         "Anschaffungsdatum:",
+        "Garantiedatum:",
+        "Nächste Wartung:",
         "Standort:",
         "Mitarbeiter:",
         "Computername:",
@@ -223,8 +225,10 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
             "Rechnungsnummer:":   ("invoice_number",  ""),
             "Händler:":           ("vendor",          ""),
             "Lieferscheinnummer:":("delivery_note",   ""),
-            "Auftragsnummer:":    ("order_number",    ""),
-            "Kaufpreis (€):":    ("purchase_price",  ""),
+            "Auftragsnummer:":    ("order_number",           ""),
+            "Kaufpreis (€):":    ("purchase_price",          ""),
+            "Garantiedatum:":    ("warranty_date",           ""),
+            "Nächste Wartung:":  ("next_maintenance_date",   ""),
         }
         for label, (db_key, fallback) in mapping.items():
             if label in self.entries:
@@ -321,6 +325,18 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
             self.entries["Anschaffungsdatum:"].focus()
             return
 
+        warranty_raw = g["Garantiedatum:"].get().strip()
+        if warranty_raw and not validate_date(warranty_raw):
+            self.entries["Garantiedatum:"].focus()
+            return
+        warranty_date = warranty_raw or None
+
+        maint_raw = g["Nächste Wartung:"].get().strip()
+        if maint_raw and not validate_date(maint_raw):
+            self.entries["Nächste Wartung:"].focus()
+            return
+        next_maintenance_date = maint_raw or None
+
         selected_mat_ids = [
             mid for mid, var in self.material_vars.items() if var.get() == "on"
         ]
@@ -331,7 +347,7 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
                     self.device_id, dev_type, model, manufacturer, p_date,
                     loc, emp_name, comp_name, ip_address, serial,
                     inv_num, ean_code, status, invoice_num, vendor, delivery, order_num,
-                    notes, purchase_price,
+                    notes, purchase_price, warranty_date, next_maintenance_date,
                 )
                 msg = "Gerät erfolgreich aktualisiert."
             else:
@@ -339,7 +355,7 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
                     self.device_id, dev_type, model, manufacturer, p_date,
                     loc, emp_name, comp_name, ip_address, serial,
                     inv_num, ean_code, status, invoice_num, vendor, delivery, order_num,
-                    notes, purchase_price,
+                    notes, purchase_price, warranty_date, next_maintenance_date,
                 )
                 msg = f"Gerät '{model}' erfolgreich hinzugefügt."
 

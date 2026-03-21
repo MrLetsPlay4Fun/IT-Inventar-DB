@@ -1,6 +1,6 @@
 # IT Inventar Verwaltung
 
-![Version](https://img.shields.io/badge/Version-5.3.1-blue)
+![Version](https://img.shields.io/badge/Version-5.3.2-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-green)
 ![Lizenz](https://img.shields.io/badge/Lizenz-AGPLv3-orange)
 
@@ -185,6 +185,11 @@ IT-Inventar-DB/
 ---
 
 ## Changelog
+
+### v5.3.2 – 2026-03-21
+- **Neu:** Garantiedatum und Wartungsdatum pro Gerät erfassbar (Format: YYYY-MM-DD)
+- **Neu:** Farbliche Hervorhebung in der Geräteliste: Rot = abgelaufen, Orange = fällig in ≤ 30 Tagen
+- **Neu:** Automatische Datenbankmigration für bestehende Installationen
 
 ### v5.3.1 – 2026-03-21
 - **Neu:** Kaufpreisfeld pro Gerät (`purchase_price`) und Stückpreisfeld pro Material (`unit_price`) mit Float-Validierung

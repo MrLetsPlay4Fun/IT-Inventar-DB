@@ -13,6 +13,7 @@ import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
+from datetime import date, timedelta
 import customtkinter as ctk
 
 import config
@@ -193,24 +194,30 @@ class App(ctk.CTk):
         tree_frame = ctk.CTkFrame(tab)
         tree_frame.pack(expand=True, fill="both", padx=5, pady=(0, 5))
 
-        cols = ("ID", "Typ", "Modell", "Hersteller", "Anschaffung", "Standort",
-                "Mitarbeiter", "Computer", "IP-Adresse", "Seriennr.", "Inventarnr.",
-                "EAN-Code", "Rechnungsnr.", "Händler", "Lieferscheinnr.", "Auftragsnr.", "Status")
+        cols = ("ID", "Typ", "Modell", "Hersteller", "Anschaffung", "Garantie",
+                "Nächste Wartung", "Standort", "Mitarbeiter", "Computer", "IP-Adresse",
+                "Seriennr.", "Inventarnr.", "EAN-Code", "Rechnungsnr.", "Händler",
+                "Lieferscheinnr.", "Auftragsnr.", "Status")
         self.device_tree = ttk.Treeview(tree_frame, columns=cols, show="headings", selectmode="browse")
 
         widths = {
             "ID": 80, "Typ": 80, "Modell": 130, "Hersteller": 90, "Anschaffung": 80,
+            "Garantie": 90, "Nächste Wartung": 110,
             "Standort": 90, "Mitarbeiter": 90, "Computer": 90, "IP-Adresse": 100,
             "Seriennr.": 90, "Inventarnr.": 90, "EAN-Code": 90,
             "Rechnungsnr.": 100, "Händler": 100, "Lieferscheinnr.": 110,
             "Auftragsnr.": 100, "Status": 90,
         }
-        anchors = {"Anschaffung": "center", "ID": "w", "Status": "center", "IP-Adresse": "w"}
+        anchors = {"Anschaffung": "center", "Garantie": "center", "Nächste Wartung": "center",
+                   "ID": "w", "Status": "center", "IP-Adresse": "w"}
 
         for col in cols:
             self.device_tree.heading(col, text=col, anchor="w")
             self.device_tree.column(col, width=widths.get(col, 80),
                                     anchor=anchors.get(col, "w"), stretch=tk.YES)
+
+        self.device_tree.tag_configure("expired", background="#FFCCCC")
+        self.device_tree.tag_configure("warning", background="#FFE0B2")
 
         vsb = ttk.Scrollbar(tree_frame, orient="vertical",   command=self.device_tree.yview)
         vsb.pack(side="right", fill="y")
@@ -345,13 +352,30 @@ class App(ctk.CTk):
 
         db_cols = (
             "device_id", "device_type", "model", "manufacturer", "purchase_date",
+            "warranty_date", "next_maintenance_date",
             "location", "employee_name", "computer_name", "ip_address",
             "serial_number", "inventory_number", "ean_code",
             "invoice_number", "vendor", "delivery_note", "order_number", "status",
         )
+        today     = date.today()
+        threshold = today + timedelta(days=30)
         for dev in (device_list or []):
+            tag = ""
+            for date_field in ("warranty_date", "next_maintenance_date"):
+                val = dev.get(date_field) or ""
+                if val:
+                    try:
+                        d = date.fromisoformat(val)
+                        if d < today:
+                            tag = "expired"
+                            break
+                        elif d <= threshold and tag != "expired":
+                            tag = "warning"
+                    except ValueError:
+                        pass
             self.device_tree.insert("", "end",
-                                    values=[str(dev.get(c, "") or "") for c in db_cols])
+                                    values=[str(dev.get(c, "") or "") for c in db_cols],
+                                    tags=(tag,) if tag else ())
         self.on_device_select()
 
     def refresh_device_list(self, status_filter=None):

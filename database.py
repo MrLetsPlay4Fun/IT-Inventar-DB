@@ -91,8 +91,10 @@ def setup_database() -> None:
                 vendor           TEXT,
                 delivery_note    TEXT,
                 order_number     TEXT,
-                notes            TEXT,
-                purchase_price   REAL
+                notes                 TEXT,
+                purchase_price        REAL,
+                warranty_date         TEXT,
+                next_maintenance_date TEXT
             )
         """)
 
@@ -153,7 +155,9 @@ def _run_migrations(db_file: str) -> None:
     add_column_if_not_exists("devices", "delivery_note",    "TEXT")
     add_column_if_not_exists("devices", "order_number",     "TEXT")
     add_column_if_not_exists("devices", "notes",            "TEXT")
-    add_column_if_not_exists("devices", "purchase_price",   "REAL")
+    add_column_if_not_exists("devices", "purchase_price",        "REAL")
+    add_column_if_not_exists("devices", "warranty_date",         "TEXT")
+    add_column_if_not_exists("devices", "next_maintenance_date", "TEXT")
 
     # Material-Migrationen
     add_column_if_not_exists("materials", "manufacturer",     "TEXT")
@@ -356,19 +360,22 @@ def search_materials_db(search_term, status_filter_text="Alle anzeigen"):
 def add_device_db(dev_id, dev_type, model, manufacturer, p_date, loc,
                   emp_name, comp_name, ip_address, serial, inventory_number,
                   ean_code, status, invoice_number, vendor, delivery_note, order_number,
-                  notes=None, purchase_price=None):
+                  notes=None, purchase_price=None, warranty_date=None,
+                  next_maintenance_date=None):
     query = """
         INSERT INTO devices
         (device_id, device_type, model, manufacturer, purchase_date, location,
          employee_name, computer_name, ip_address, serial_number, inventory_number,
-         ean_code, status, invoice_number, vendor, delivery_note, order_number, notes, purchase_price)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ean_code, status, invoice_number, vendor, delivery_note, order_number, notes,
+         purchase_price, warranty_date, next_maintenance_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     return run_query(
         query,
         (dev_id, dev_type, model, manufacturer, p_date, loc, emp_name, comp_name,
          ip_address, serial, inventory_number, ean_code, status,
-         invoice_number, vendor, delivery_note, order_number, notes, purchase_price),
+         invoice_number, vendor, delivery_note, order_number, notes, purchase_price,
+         warranty_date, next_maintenance_date),
         commit=True,
     )
 
@@ -379,7 +386,7 @@ def get_all_devices_db(status_filter_text="Alle anzeigen"):
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
                ean_code, status, invoice_number, vendor, delivery_note, order_number, notes,
-               purchase_price
+               purchase_price, warranty_date, next_maintenance_date
         FROM devices
         {filter_clause}
         ORDER BY model
@@ -390,21 +397,23 @@ def get_all_devices_db(status_filter_text="Alle anzeigen"):
 def update_device_db(dev_id, dev_type, model, manufacturer, p_date, loc,
                      emp_name, comp_name, ip_address, serial, inventory_number,
                      ean_code, status, invoice_number, vendor, delivery_note, order_number,
-                     notes=None, purchase_price=None):
+                     notes=None, purchase_price=None, warranty_date=None,
+                     next_maintenance_date=None):
     query = """
         UPDATE devices SET
             device_type = ?, model = ?, manufacturer = ?, purchase_date = ?,
             location = ?, employee_name = ?, computer_name = ?, ip_address = ?,
             serial_number = ?, inventory_number = ?, ean_code = ?, status = ?,
             invoice_number = ?, vendor = ?, delivery_note = ?, order_number = ?, notes = ?,
-            purchase_price = ?
+            purchase_price = ?, warranty_date = ?, next_maintenance_date = ?
         WHERE device_id = ?
     """
     return run_query(
         query,
         (dev_type, model, manufacturer, p_date, loc, emp_name, comp_name,
          ip_address, serial, inventory_number, ean_code, status,
-         invoice_number, vendor, delivery_note, order_number, notes, purchase_price, dev_id),
+         invoice_number, vendor, delivery_note, order_number, notes, purchase_price,
+         warranty_date, next_maintenance_date, dev_id),
         commit=True,
     )
 
@@ -418,7 +427,7 @@ def get_device_by_id_db(dev_id):
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
                ean_code, status, invoice_number, vendor, delivery_note, order_number, notes,
-               purchase_price
+               purchase_price, warranty_date, next_maintenance_date
         FROM devices WHERE device_id = ?
     """
     return run_query(query, (dev_id,), fetchone=True)
@@ -440,7 +449,7 @@ def search_devices_db(search_term, status_filter_text="Alle anzeigen"):
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
                ean_code, status, invoice_number, vendor, delivery_note, order_number, notes,
-               purchase_price
+               purchase_price, warranty_date, next_maintenance_date
         FROM devices
         {where}
         ORDER BY model
