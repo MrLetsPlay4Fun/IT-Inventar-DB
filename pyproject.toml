@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "it-inventar-db"
-version = "5.3.0"
+version = "5.3.1"
 description = "Lokale IT-Asset-Management-Anwendung zur Verwaltung und Inventarisierung von Geräten und Material"
 readme = "README.md"
 license = { file = "LICENSE" }

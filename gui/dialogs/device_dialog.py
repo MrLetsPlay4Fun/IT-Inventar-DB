@@ -50,6 +50,7 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
         "Rechnungsnummer:",
         "Lieferscheinnummer:",
         "Auftragsnummer:",
+        "Kaufpreis (€):",
     ]
 
     def __init__(self, parent, device_data: dict | None = None):
@@ -223,10 +224,11 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
             "Händler:":           ("vendor",          ""),
             "Lieferscheinnummer:":("delivery_note",   ""),
             "Auftragsnummer:":    ("order_number",    ""),
+            "Kaufpreis (€):":    ("purchase_price",  ""),
         }
         for label, (db_key, fallback) in mapping.items():
             if label in self.entries:
-                self.entries[label].insert(0, data.get(db_key, fallback) or "")
+                self.entries[label].insert(0, str(data.get(db_key, fallback) or ""))
         self.status_var.set(data.get("status", DEFAULT_ASSET_STATUS))
         self.notes_textbox.delete("1.0", "end")
         self.notes_textbox.insert("1.0", data.get("notes", "") or "")
@@ -289,6 +291,22 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
         status       = self.status_var.get()
         emp_name     = emp_raw if emp_raw and emp_raw != "-" else None
         notes        = self.notes_textbox.get("1.0", "end").strip() or None
+        price_raw    = g["Kaufpreis (€):"].get().strip()
+        if price_raw:
+            try:
+                purchase_price = float(price_raw.replace(",", "."))
+                if purchase_price < 0:
+                    raise ValueError
+            except ValueError:
+                messagebox.showwarning(
+                    "Ungültige Eingabe",
+                    "Kaufpreis muss eine gültige positive Zahl sein (z. B. 1299.99).",
+                    parent=self,
+                )
+                self.entries["Kaufpreis (€):"].focus()
+                return
+        else:
+            purchase_price = None
 
         if not model:
             messagebox.showwarning(
@@ -313,7 +331,7 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
                     self.device_id, dev_type, model, manufacturer, p_date,
                     loc, emp_name, comp_name, ip_address, serial,
                     inv_num, ean_code, status, invoice_num, vendor, delivery, order_num,
-                    notes,
+                    notes, purchase_price,
                 )
                 msg = "Gerät erfolgreich aktualisiert."
             else:
@@ -321,7 +339,7 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
                     self.device_id, dev_type, model, manufacturer, p_date,
                     loc, emp_name, comp_name, ip_address, serial,
                     inv_num, ean_code, status, invoice_num, vendor, delivery, order_num,
-                    notes,
+                    notes, purchase_price,
                 )
                 msg = f"Gerät '{model}' erfolgreich hinzugefügt."
 

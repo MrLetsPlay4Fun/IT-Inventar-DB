@@ -1,6 +1,6 @@
 # IT Inventar Verwaltung
 
-![Version](https://img.shields.io/badge/Version-5.3-blue)
+![Version](https://img.shields.io/badge/Version-5.3.1-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-green)
 ![Lizenz](https://img.shields.io/badge/Lizenz-AGPLv3-orange)
 
@@ -185,6 +185,10 @@ IT-Inventar-DB/
 ---
 
 ## Changelog
+
+### v5.3.1 – 2026-03-21
+- **Neu:** Kaufpreisfeld pro Gerät (`purchase_price`) und Stückpreisfeld pro Material (`unit_price`) mit Float-Validierung
+- **Neu:** Automatische Datenbankmigration für bestehende Installationen (Spalten werden ohne Datenverlust ergänzt)
 
 ### v5.3.0 – 2026-03-21
 - **Neu:** Notizfeld pro Gerät und Material – freies mehrzeiliges Textfeld für interne Hinweise, Besonderheiten oder Kommentare

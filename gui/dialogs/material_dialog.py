@@ -58,6 +58,7 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
             ("Hersteller:",      "manu_entry"),
             ("Farbe:",           "color_entry"),
             ("Lagerbestand:",    "stock_entry"),
+            ("Stückpreis (€):",  "price_entry"),
             ("EAN / Prod-Barcode:", "ean_entry"),
             ("Inventarnummer:",  "inv_entry"),
         ]
@@ -101,6 +102,7 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
         self.manu_entry.insert(0,  data.get("manufacturer", "") or "")
         self.color_entry.insert(0, data.get("color", "") or "")
         self.stock_entry.insert(0, str(data.get("stock_quantity", 0)))
+        self.price_entry.insert(0, str(data.get("unit_price", "") or ""))
         self.ean_entry.insert(0,   data.get("ean_code", "") or "")
         self.inv_entry.insert(0,   data.get("inventory_number", "") or "")
         self.status_var.set(data.get("status", DEFAULT_ASSET_STATUS))
@@ -121,6 +123,22 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
         inventory_number = self.inv_entry.get().strip() or None
         status           = self.status_var.get()
         notes            = self.notes_textbox.get("1.0", "end").strip() or None
+        price_raw        = self.price_entry.get().strip()
+        if price_raw:
+            try:
+                unit_price = float(price_raw.replace(",", "."))
+                if unit_price < 0:
+                    raise ValueError
+            except ValueError:
+                messagebox.showwarning(
+                    "Ungültige Eingabe",
+                    "Stückpreis muss eine gültige positive Zahl sein (z. B. 9.99).",
+                    parent=self,
+                )
+                self.price_entry.focus()
+                return
+        else:
+            unit_price = None
 
         if not name:
             messagebox.showwarning(
@@ -154,13 +172,13 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
             if self.material_data:
                 success = update_material_db(
                     self.material_id, name, mat_type, manufacturer,
-                    color, stock, ean_code, inventory_number, status, notes,
+                    color, stock, ean_code, inventory_number, status, notes, unit_price,
                 )
                 msg = "Material erfolgreich aktualisiert."
             else:
                 success = add_material_db(
                     self.material_id, name, mat_type, manufacturer,
-                    color, stock, ean_code, inventory_number, status, notes,
+                    color, stock, ean_code, inventory_number, status, notes, unit_price,
                 )
                 msg = f"Material '{name}' erfolgreich hinzugefügt."
 
