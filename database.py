@@ -557,6 +557,70 @@ def get_linked_material_ids_for_device(device_id) -> list:
 # Audit-Log
 # ---------------------------------------------------------------------------
 
+def get_dashboard_stats_db() -> dict:
+    """Liefert Gesamtzahlen: Geräte, Material, Gesamtwert, fällige Wartungen."""
+    from datetime import date
+    today     = date.today().isoformat()
+    dev_count = run_query("SELECT COUNT(*) AS n FROM devices", fetchone=True)
+    mat_count = run_query("SELECT COUNT(*) AS n FROM materials", fetchone=True)
+    dev_value = run_query(
+        "SELECT COALESCE(SUM(purchase_price), 0) AS v FROM devices", fetchone=True
+    )
+    mat_value = run_query(
+        "SELECT COALESCE(SUM(unit_price * stock_quantity), 0) AS v FROM materials",
+        fetchone=True,
+    )
+    maint_due = run_query(
+        "SELECT COUNT(*) AS n FROM devices "
+        "WHERE next_maintenance_date IS NOT NULL AND next_maintenance_date != '' "
+        "AND next_maintenance_date <= ?",
+        (today,), fetchone=True,
+    )
+    return {
+        "device_count":    (dev_count or {}).get("n", 0),
+        "material_count":  (mat_count or {}).get("n", 0),
+        "total_value":     (dev_value or {}).get("v", 0.0) + (mat_value or {}).get("v", 0.0),
+        "maintenance_due": (maint_due or {}).get("n", 0),
+    }
+
+
+def get_devices_by_status_db() -> list:
+    """Geräte gruppiert nach Status: [{'status': ..., 'count': ...}, ...]"""
+    return run_query(
+        "SELECT status, COUNT(*) AS count FROM devices "
+        "GROUP BY status ORDER BY count DESC",
+        fetchall=True,
+    ) or []
+
+
+def get_devices_by_location_db(limit: int = 5) -> list:
+    """Top-N Standorte nach Geräteanzahl: [{'location': ..., 'count': ...}, ...]"""
+    return run_query(
+        "SELECT COALESCE(location, '(kein Standort)') AS location, "
+        "COUNT(*) AS count FROM devices "
+        "WHERE location IS NOT NULL AND location != '' AND location != '-' "
+        "GROUP BY location ORDER BY count DESC LIMIT ?",
+        (limit,), fetchall=True,
+    ) or []
+
+
+def get_expiring_devices_db(days: int = 30) -> list:
+    """Geräte mit abgelaufener oder bald ablaufender Garantie/Wartung (≤ days Tage)."""
+    from datetime import date, timedelta
+    threshold = (date.today() + timedelta(days=days)).isoformat()
+    return run_query(
+        "SELECT device_id, model, manufacturer, location, employee_name, "
+        "warranty_date, next_maintenance_date, status FROM devices "
+        "WHERE (warranty_date IS NOT NULL AND warranty_date != '' "
+        "       AND warranty_date <= ?) "
+        "   OR (next_maintenance_date IS NOT NULL AND next_maintenance_date != '' "
+        "       AND next_maintenance_date <= ?) "
+        "ORDER BY COALESCE(NULLIF(warranty_date,''), '9999'), "
+        "         COALESCE(NULLIF(next_maintenance_date,''), '9999')",
+        (threshold, threshold), fetchall=True,
+    ) or []
+
+
 def log_audit_db(entity_type: str, entity_id: str, action: str,
                  field_name=None, old_value=None, new_value=None):
     """Schreibt einen Eintrag in die audit_log-Tabelle."""

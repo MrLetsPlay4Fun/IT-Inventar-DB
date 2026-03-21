@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "it-inventar-db"
-version = "5.4.0"
+version = "5.5.0"
 description = "Lokale IT-Asset-Management-Anwendung zur Verwaltung und Inventarisierung von Geräten und Material"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
     "customtkinter>=5.2.0",
+    "matplotlib>=3.7.0",
 ]
 
 [project.scripts]

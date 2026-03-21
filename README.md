@@ -1,6 +1,6 @@
 # IT Inventar Verwaltung
 
-![Version](https://img.shields.io/badge/Version-5.4.0-blue)
+![Version](https://img.shields.io/badge/Version-5.5.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-green)
 ![Lizenz](https://img.shields.io/badge/Lizenz-AGPLv3-orange)
 
@@ -15,6 +15,7 @@ Gebaut mit **Python 3**, **CustomTkinter** und **SQLite**.
 - **Geräte verwalten** – Typ, Modell, Hersteller, Seriennummer, IP-Adresse, Standort, Mitarbeiter, Rechnungsnummer, Händler, Lieferschein- und Auftragsnummer
 - **Material verwalten** – Name, Typ, Hersteller, Farbe, Lagerbestand, EAN-Code
 - **Notizen / Kommentare** – Freies Textfeld pro Gerät und Material für interne Hinweise
+- **Dashboard & Statistiken** – Übersicht mit Stat-Cards, Diagrammen (Pie/Bar) und Ablauf-Tabelle
 - **Audit-Log** – Vollständige Änderungshistorie (ADD/EDIT/DELETE) mit Filter und CSV-Export
 - **Gerät ↔ Material verknüpfen** – Many-to-Many-Beziehungen
 - **Suche & Status-Filter** – Echtzeit-Suche, Filterung nach Status
@@ -186,6 +187,14 @@ IT-Inventar-DB/
 ---
 
 ## Changelog
+
+### v5.5.0 – 2026-03-21
+- **Neu:** Dashboard-Tab „📊 Dashboard" mit 4 Stat-Cards (Geräte, Material, Gesamtwert, Wartungen fällig)
+- **Neu:** Pie-Chart: Geräteverteilung nach Status
+- **Neu:** Balkendiagramm: Top-5 Standorte nach Geräteanzahl
+- **Neu:** Tabelle: ablaufende/überfällige Garantien und Wartungen (Farbcodierung Rot/Orange)
+- **Neu:** Automatische Aktualisierung beim Tab-Wechsel + manueller Refresh-Button
+- **Abhängigkeit:** matplotlib>=3.7.0
 
 ### v5.4.0 – 2026-03-21
 - **Neu:** Vollständiges Audit-Log (Änderungshistorie) für alle Geräte- und Materialänderungen

@@ -39,6 +39,7 @@ from gui.dialogs.association_dialogs import (
     ShowAssociatedMaterialsWindow,
 )
 from gui.dialogs.settings_dialog    import DBSettingsDialog
+from gui.tabs.dashboard_tab         import DashboardTab
 
 
 class App(ctk.CTk):
@@ -117,12 +118,15 @@ class App(ctk.CTk):
         # Tabs
         self.tab_view = ctk.CTkTabview(self, anchor="nw")
         self.tab_view.pack(expand=True, fill="both", padx=10, pady=(4, 10))
+        self.tab_dashboard = self.tab_view.add("📊 Dashboard")
         self.tab_devices   = self.tab_view.add("Geräte")
         self.tab_materials = self.tab_view.add("Material")
         self.tab_view.set("Geräte")
+        self.tab_view.configure(command=self._on_tab_change)
 
         self._setup_devices_tab()
         self._setup_materials_tab()
+        self.dashboard_tab = DashboardTab(self.tab_dashboard, parent_app=self)
 
     def _setup_treeview_style(self):
         style = ttk.Style()
@@ -304,6 +308,10 @@ class App(ctk.CTk):
     # ==================================================================
     # Einstellungen
     # ==================================================================
+
+    def _on_tab_change(self):
+        if self.tab_view.get() == "📊 Dashboard":
+            self.dashboard_tab.refresh()
 
     def _open_audit_log(self):
         from gui.dialogs.audit_log_dialog import AuditLogDialog

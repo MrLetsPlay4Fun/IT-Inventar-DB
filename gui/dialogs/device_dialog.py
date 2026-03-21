@@ -66,7 +66,8 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
 
         is_editing = bool(device_data)
         self.title("Gerät bearbeiten" if is_editing else "Gerät hinzufügen")
-        self.geometry("1020x840")
+        self.geometry("1020x960")
+        self.minsize(900, 900)
         self.transient(parent)
         self.grab_set()
 
