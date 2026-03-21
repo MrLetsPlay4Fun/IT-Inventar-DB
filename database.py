@@ -65,7 +65,8 @@ def setup_database() -> None:
                 stock_quantity  INTEGER DEFAULT 0,
                 ean_code        TEXT UNIQUE,
                 inventory_number TEXT,
-                status          TEXT DEFAULT 'Lagernd'
+                status          TEXT DEFAULT 'Lagernd',
+                notes           TEXT
             )
         """)
 
@@ -88,7 +89,8 @@ def setup_database() -> None:
                 invoice_number   TEXT,
                 vendor           TEXT,
                 delivery_note    TEXT,
-                order_number     TEXT
+                order_number     TEXT,
+                notes            TEXT
             )
         """)
 
@@ -148,6 +150,7 @@ def _run_migrations(db_file: str) -> None:
     add_column_if_not_exists("devices", "vendor",           "TEXT")
     add_column_if_not_exists("devices", "delivery_note",    "TEXT")
     add_column_if_not_exists("devices", "order_number",     "TEXT")
+    add_column_if_not_exists("devices", "notes",            "TEXT")
 
     # Material-Migrationen
     add_column_if_not_exists("materials", "manufacturer",     "TEXT")
@@ -155,6 +158,7 @@ def _run_migrations(db_file: str) -> None:
     add_column_if_not_exists("materials", "ean_code",         "TEXT")
     add_column_if_not_exists("materials", "inventory_number", "TEXT")
     add_column_if_not_exists("materials", "status",           "TEXT", default_value=config.DEFAULT_ASSET_STATUS)
+    add_column_if_not_exists("materials", "notes",            "TEXT")
 
 
 # ---------------------------------------------------------------------------
@@ -247,16 +251,16 @@ def get_status_filter_clause(status_filter_text: str, is_material: bool = True):
 # ---------------------------------------------------------------------------
 
 def add_material_db(mat_id, name, type_, manufacturer, color, stock,
-                    ean_code, inventory_number, status):
+                    ean_code, inventory_number, status, notes=None):
     query = """
         INSERT INTO materials
         (material_id, name, type, manufacturer, color, stock_quantity,
-         ean_code, inventory_number, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ean_code, inventory_number, status, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     return run_query(
         query,
-        (mat_id, name, type_, manufacturer, color, stock, ean_code, inventory_number, status),
+        (mat_id, name, type_, manufacturer, color, stock, ean_code, inventory_number, status, notes),
         commit=True,
     )
 
@@ -265,7 +269,7 @@ def get_all_materials_db(status_filter_text="Alle anzeigen"):
     filter_clause, params = get_status_filter_clause(status_filter_text)
     query = f"""
         SELECT material_id, name, type, manufacturer, color,
-               stock_quantity, ean_code, inventory_number, status
+               stock_quantity, ean_code, inventory_number, status, notes
         FROM materials
         {filter_clause}
         ORDER BY name
@@ -274,16 +278,16 @@ def get_all_materials_db(status_filter_text="Alle anzeigen"):
 
 
 def update_material_db(mat_id, name, type_, manufacturer, color, stock,
-                       ean_code, inventory_number, status):
+                       ean_code, inventory_number, status, notes=None):
     query = """
         UPDATE materials SET
             name = ?, type = ?, manufacturer = ?, color = ?,
-            stock_quantity = ?, ean_code = ?, inventory_number = ?, status = ?
+            stock_quantity = ?, ean_code = ?, inventory_number = ?, status = ?, notes = ?
         WHERE material_id = ?
     """
     return run_query(
         query,
-        (name, type_, manufacturer, color, stock, ean_code, inventory_number, status, mat_id),
+        (name, type_, manufacturer, color, stock, ean_code, inventory_number, status, notes, mat_id),
         commit=True,
     )
 
@@ -295,7 +299,7 @@ def delete_material_db(mat_id):
 def get_material_by_id_db(mat_id):
     return run_query(
         "SELECT material_id, name, type, manufacturer, color, stock_quantity, "
-        "ean_code, inventory_number, status FROM materials WHERE material_id = ?",
+        "ean_code, inventory_number, status, notes FROM materials WHERE material_id = ?",
         (mat_id,),
         fetchone=True,
     )
@@ -332,7 +336,7 @@ def search_materials_db(search_term, status_filter_text="Alle anzeigen"):
     where = f"{filter_clause} AND ({placeholder})" if filter_clause else f"WHERE {placeholder}"
     query = f"""
         SELECT material_id, name, type, manufacturer, color,
-               stock_quantity, ean_code, inventory_number, status
+               stock_quantity, ean_code, inventory_number, status, notes
         FROM materials
         {where}
         ORDER BY name
@@ -346,19 +350,20 @@ def search_materials_db(search_term, status_filter_text="Alle anzeigen"):
 
 def add_device_db(dev_id, dev_type, model, manufacturer, p_date, loc,
                   emp_name, comp_name, ip_address, serial, inventory_number,
-                  ean_code, status, invoice_number, vendor, delivery_note, order_number):
+                  ean_code, status, invoice_number, vendor, delivery_note, order_number,
+                  notes=None):
     query = """
         INSERT INTO devices
         (device_id, device_type, model, manufacturer, purchase_date, location,
          employee_name, computer_name, ip_address, serial_number, inventory_number,
-         ean_code, status, invoice_number, vendor, delivery_note, order_number)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ean_code, status, invoice_number, vendor, delivery_note, order_number, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     return run_query(
         query,
         (dev_id, dev_type, model, manufacturer, p_date, loc, emp_name, comp_name,
          ip_address, serial, inventory_number, ean_code, status,
-         invoice_number, vendor, delivery_note, order_number),
+         invoice_number, vendor, delivery_note, order_number, notes),
         commit=True,
     )
 
@@ -368,7 +373,7 @@ def get_all_devices_db(status_filter_text="Alle anzeigen"):
     query = f"""
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
-               ean_code, status, invoice_number, vendor, delivery_note, order_number
+               ean_code, status, invoice_number, vendor, delivery_note, order_number, notes
         FROM devices
         {filter_clause}
         ORDER BY model
@@ -378,20 +383,21 @@ def get_all_devices_db(status_filter_text="Alle anzeigen"):
 
 def update_device_db(dev_id, dev_type, model, manufacturer, p_date, loc,
                      emp_name, comp_name, ip_address, serial, inventory_number,
-                     ean_code, status, invoice_number, vendor, delivery_note, order_number):
+                     ean_code, status, invoice_number, vendor, delivery_note, order_number,
+                     notes=None):
     query = """
         UPDATE devices SET
             device_type = ?, model = ?, manufacturer = ?, purchase_date = ?,
             location = ?, employee_name = ?, computer_name = ?, ip_address = ?,
             serial_number = ?, inventory_number = ?, ean_code = ?, status = ?,
-            invoice_number = ?, vendor = ?, delivery_note = ?, order_number = ?
+            invoice_number = ?, vendor = ?, delivery_note = ?, order_number = ?, notes = ?
         WHERE device_id = ?
     """
     return run_query(
         query,
         (dev_type, model, manufacturer, p_date, loc, emp_name, comp_name,
          ip_address, serial, inventory_number, ean_code, status,
-         invoice_number, vendor, delivery_note, order_number, dev_id),
+         invoice_number, vendor, delivery_note, order_number, notes, dev_id),
         commit=True,
     )
 
@@ -404,7 +410,7 @@ def get_device_by_id_db(dev_id):
     query = """
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
-               ean_code, status, invoice_number, vendor, delivery_note, order_number
+               ean_code, status, invoice_number, vendor, delivery_note, order_number, notes
         FROM devices WHERE device_id = ?
     """
     return run_query(query, (dev_id,), fetchone=True)
@@ -425,7 +431,7 @@ def search_devices_db(search_term, status_filter_text="Alle anzeigen"):
     query = f"""
         SELECT device_id, device_type, model, manufacturer, purchase_date, location,
                employee_name, computer_name, ip_address, serial_number, inventory_number,
-               ean_code, status, invoice_number, vendor, delivery_note, order_number
+               ean_code, status, invoice_number, vendor, delivery_note, order_number, notes
         FROM devices
         {where}
         ORDER BY model

@@ -1,5 +1,9 @@
 # IT Inventar Verwaltung
 
+![Version](https://img.shields.io/badge/Version-5.3-blue)
+![Python](https://img.shields.io/badge/Python-3.10%2B-green)
+![Lizenz](https://img.shields.io/badge/Lizenz-AGPLv3-orange)
+
 Eine einfache, lokale IT-Asset-Management-Anwendung zur Verwaltung und Inventarisierung von Geräten und Material in einer IT-Abteilung.
 
 Gebaut mit **Python 3**, **CustomTkinter** und **SQLite**.
@@ -10,6 +14,7 @@ Gebaut mit **Python 3**, **CustomTkinter** und **SQLite**.
 
 - **Geräte verwalten** – Typ, Modell, Hersteller, Seriennummer, IP-Adresse, Standort, Mitarbeiter, Rechnungsnummer, Händler, Lieferschein- und Auftragsnummer
 - **Material verwalten** – Name, Typ, Hersteller, Farbe, Lagerbestand, EAN-Code
+- **Notizen / Kommentare** – Freies Textfeld pro Gerät und Material für interne Hinweise
 - **Gerät ↔ Material verknüpfen** – Many-to-Many-Beziehungen
 - **Suche & Status-Filter** – Echtzeit-Suche, Filterung nach Status
 - **Autocomplete** – Vorschläge aus bestehenden Einträgen
@@ -176,6 +181,22 @@ IT-Inventar-DB/
   *(z. B. `\\Server\IT\Inventar` unter Windows oder ein gemountetes Netzlaufwerk unter macOS)*.
 - SQLite unterstützt keinen gleichzeitigen Schreibzugriff mehrerer Nutzer.
   Für größere Teams empfiehlt sich eine Migration zu PostgreSQL oder MariaDB.
+
+---
+
+## Changelog
+
+### v5.3.0 – 2026-03-21
+- **Neu:** Notizfeld pro Gerät und Material – freies mehrzeiliges Textfeld für interne Hinweise, Besonderheiten oder Kommentare
+- **Neu:** Automatische Datenbankmigration für bestehende Installationen (Spalte `notes` wird ohne Datenverlust ergänzt)
+
+### v5.2.0
+- Barcode-Scan-Unterstützung für schnelle Lagerbuchungen
+- Autocomplete für Geräteeingabefelder (Typ, Hersteller, Modell, Standort, Mitarbeiter, Händler)
+- Backup & Restore direkt in der GUI
+- Konfigurierbare Datenbankpfade inkl. Netzwerkpfad-Unterstützung
+- Many-to-Many-Verknüpfung zwischen Geräten und Material
+- Status-Filter und Echtzeit-Suche in beiden Tabs
 
 ---
 

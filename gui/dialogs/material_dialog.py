@@ -31,7 +31,7 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
 
         is_editing = bool(material_data)
         self.title("Material bearbeiten" if is_editing else "Material hinzufügen")
-        self.geometry("460x560")
+        self.geometry("460x660")
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
@@ -82,6 +82,14 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
         )
         self.status_menu.grid(row=status_row, column=1, pady=8, sticky="ew")
 
+        # Notizen
+        notes_row = status_row + 1
+        ctk.CTkLabel(frame, text="Notizen:").grid(
+            row=notes_row, column=0, padx=(0, 10), pady=(8, 0), sticky="nw"
+        )
+        self.notes_textbox = ctk.CTkTextbox(frame, height=70)
+        self.notes_textbox.grid(row=notes_row, column=1, pady=(8, 0), sticky="ew")
+
         # Speichern-Button
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.pack(pady=(0, 20), padx=20, fill="x")
@@ -96,6 +104,8 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
         self.ean_entry.insert(0,   data.get("ean_code", "") or "")
         self.inv_entry.insert(0,   data.get("inventory_number", "") or "")
         self.status_var.set(data.get("status", DEFAULT_ASSET_STATUS))
+        self.notes_textbox.delete("1.0", "end")
+        self.notes_textbox.insert("1.0", data.get("notes", "") or "")
 
     # ------------------------------------------------------------------
     # Speichern
@@ -110,6 +120,7 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
         ean_code         = self.ean_entry.get().strip() or None
         inventory_number = self.inv_entry.get().strip() or None
         status           = self.status_var.get()
+        notes            = self.notes_textbox.get("1.0", "end").strip() or None
 
         if not name:
             messagebox.showwarning(
@@ -143,13 +154,13 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
             if self.material_data:
                 success = update_material_db(
                     self.material_id, name, mat_type, manufacturer,
-                    color, stock, ean_code, inventory_number, status,
+                    color, stock, ean_code, inventory_number, status, notes,
                 )
                 msg = "Material erfolgreich aktualisiert."
             else:
                 success = add_material_db(
                     self.material_id, name, mat_type, manufacturer,
-                    color, stock, ean_code, inventory_number, status,
+                    color, stock, ean_code, inventory_number, status, notes,
                 )
                 msg = f"Material '{name}' erfolgreich hinzugefügt."
 
