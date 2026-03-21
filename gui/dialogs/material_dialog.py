@@ -8,7 +8,7 @@ from tkinter import messagebox
 import customtkinter as ctk
 
 from config import STATUS_OPTIONS, DEFAULT_ASSET_STATUS
-from database import add_material_db, update_material_db
+from database import add_material_db, update_material_db, log_audit_db
 from utils import generate_id
 
 
@@ -183,6 +183,25 @@ class AddEditMaterialWindow(ctk.CTkToplevel):
                 msg = f"Material '{name}' erfolgreich hinzugefügt."
 
             if success:
+                # Audit-Log
+                if self.material_data:
+                    old = self.material_data
+                    field_pairs = [
+                        ("name", name), ("type", mat_type),
+                        ("manufacturer", manufacturer), ("color", color),
+                        ("stock_quantity", stock), ("ean_code", ean_code),
+                        ("inventory_number", inventory_number), ("status", status),
+                        ("notes", notes), ("unit_price", unit_price),
+                    ]
+                    for field, new_val in field_pairs:
+                        old_val = str(old.get(field, "") or "")
+                        new_str = str(new_val or "")
+                        if old_val != new_str:
+                            log_audit_db("material", self.material_id, "EDIT",
+                                         field, old_val, new_str)
+                else:
+                    log_audit_db("material", self.material_id, "ADD", new_value=name)
+
                 messagebox.showinfo("Erfolg", msg, parent=self)
                 self.parent_app.refresh_material_list()
                 self.destroy()

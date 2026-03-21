@@ -30,6 +30,7 @@ from database import (
     delete_device_db,
     delete_material_db,
     update_material_stock_db,
+    log_audit_db,
 )
 from gui.dialogs.device_dialog      import AddEditDeviceWindow
 from gui.dialogs.material_dialog    import AddEditMaterialWindow
@@ -105,6 +106,13 @@ class App(ctk.CTk):
             width=160,
             command=self._open_settings,
         ).pack(side="right")
+
+        ctk.CTkButton(
+            header,
+            text="📋 Audit-Log",
+            width=110,
+            command=self._open_audit_log,
+        ).pack(side="right", padx=5)
 
         # Tabs
         self.tab_view = ctk.CTkTabview(self, anchor="nw")
@@ -297,6 +305,10 @@ class App(ctk.CTk):
     # Einstellungen
     # ==================================================================
 
+    def _open_audit_log(self):
+        from gui.dialogs.audit_log_dialog import AuditLogDialog
+        AuditLogDialog(self)
+
     def _open_settings(self):
         """Öffnet den DB-Pfad-Einstellungsdialog."""
         dlg = DBSettingsDialog(parent=self, startup_mode=False)
@@ -424,6 +436,8 @@ class App(ctk.CTk):
             icon="warning", parent=self,
         ):
             if delete_device_db(selected_id) is True:
+                log_audit_db("device", selected_id, "DELETE",
+                             old_value=data.get("model", "") if data else "")
                 messagebox.showinfo("Gelöscht", "Gerät erfolgreich gelöscht.", parent=self)
                 self.refresh_device_list()
             else:
@@ -509,6 +523,8 @@ class App(ctk.CTk):
             icon="warning", parent=self,
         ):
             if delete_material_db(selected_id) is True:
+                log_audit_db("material", selected_id, "DELETE",
+                             old_value=data.get("name", "") if data else "")
                 messagebox.showinfo("Gelöscht", "Material erfolgreich gelöscht.", parent=self)
                 self.refresh_material_list()
             else:

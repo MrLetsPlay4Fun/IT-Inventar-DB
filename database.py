@@ -110,6 +110,20 @@ def setup_database() -> None:
             )
         """)
 
+        # --- Tabelle: audit_log ---
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS audit_log (
+                log_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp   TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                entity_id   TEXT NOT NULL,
+                action      TEXT NOT NULL,
+                field_name  TEXT,
+                old_value   TEXT,
+                new_value   TEXT
+            )
+        """)
+
         conn.commit()
 
     except sqlite3.Error as e:
@@ -537,3 +551,48 @@ def get_linked_material_ids_for_device(device_id) -> list:
         fetchall=True,
     )
     return [row["material_id"] for row in results] if results else []
+
+
+# ---------------------------------------------------------------------------
+# Audit-Log
+# ---------------------------------------------------------------------------
+
+def log_audit_db(entity_type: str, entity_id: str, action: str,
+                 field_name=None, old_value=None, new_value=None):
+    """Schreibt einen Eintrag in die audit_log-Tabelle."""
+    from datetime import datetime
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query(
+        "INSERT INTO audit_log (timestamp, entity_type, entity_id, action, "
+        "field_name, old_value, new_value) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (ts, entity_type, entity_id, action, field_name,
+         str(old_value) if old_value is not None else None,
+         str(new_value) if new_value is not None else None),
+        commit=True,
+    )
+
+
+def get_audit_log_db(entity_type=None, action=None,
+                     date_from=None, date_to=None) -> list:
+    """Liest Audit-Log-Einträge mit optionalen Filtern."""
+    conditions, params = [], []
+    if entity_type and entity_type != "Alle":
+        conditions.append("entity_type = ?")
+        params.append(entity_type)
+    if action and action != "Alle":
+        conditions.append("action = ?")
+        params.append(action)
+    if date_from:
+        conditions.append("timestamp >= ?")
+        params.append(date_from)
+    if date_to:
+        conditions.append("timestamp <= ?")
+        params.append(date_to + " 23:59:59")
+    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+    return run_query(
+        f"SELECT log_id, timestamp, entity_type, entity_id, action, "
+        f"field_name, old_value, new_value FROM audit_log {where} "
+        f"ORDER BY log_id DESC",
+        tuple(params),
+        fetchall=True,
+    ) or []

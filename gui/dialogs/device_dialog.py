@@ -15,6 +15,7 @@ from database import (
     get_linked_material_ids_for_device,
     link_materials_to_device_db,
     get_unique_column_values_db,
+    log_audit_db,
 )
 from utils import generate_id, validate_date
 from gui.widgets import AutocompleteEntry
@@ -367,6 +368,31 @@ class AddEditDeviceWindow(ctk.CTkToplevel):
                     parent=self,
                 )
                 return
+
+            # Audit-Log
+            if self.device_data:
+                old = self.device_data
+                field_pairs = [
+                    ("device_type", dev_type), ("model", model),
+                    ("manufacturer", manufacturer), ("purchase_date", p_date),
+                    ("location", loc), ("employee_name", emp_name),
+                    ("computer_name", comp_name), ("ip_address", ip_address),
+                    ("serial_number", serial), ("inventory_number", inv_num),
+                    ("ean_code", ean_code), ("status", status),
+                    ("invoice_number", invoice_num), ("vendor", vendor),
+                    ("delivery_note", delivery), ("order_number", order_num),
+                    ("notes", notes), ("purchase_price", purchase_price),
+                    ("warranty_date", warranty_date),
+                    ("next_maintenance_date", next_maintenance_date),
+                ]
+                for field, new_val in field_pairs:
+                    old_val = str(old.get(field, "") or "")
+                    new_str = str(new_val or "")
+                    if old_val != new_str:
+                        log_audit_db("device", self.device_id, "EDIT",
+                                     field, old_val, new_str)
+            else:
+                log_audit_db("device", self.device_id, "ADD", new_value=model)
 
             link_ok = link_materials_to_device_db(self.device_id, selected_mat_ids)
             if not link_ok:

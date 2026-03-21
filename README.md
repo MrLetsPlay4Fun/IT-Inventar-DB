@@ -1,6 +1,6 @@
 # IT Inventar Verwaltung
 
-![Version](https://img.shields.io/badge/Version-5.3.2-blue)
+![Version](https://img.shields.io/badge/Version-5.4.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-green)
 ![Lizenz](https://img.shields.io/badge/Lizenz-AGPLv3-orange)
 
@@ -15,6 +15,7 @@ Gebaut mit **Python 3**, **CustomTkinter** und **SQLite**.
 - **Geräte verwalten** – Typ, Modell, Hersteller, Seriennummer, IP-Adresse, Standort, Mitarbeiter, Rechnungsnummer, Händler, Lieferschein- und Auftragsnummer
 - **Material verwalten** – Name, Typ, Hersteller, Farbe, Lagerbestand, EAN-Code
 - **Notizen / Kommentare** – Freies Textfeld pro Gerät und Material für interne Hinweise
+- **Audit-Log** – Vollständige Änderungshistorie (ADD/EDIT/DELETE) mit Filter und CSV-Export
 - **Gerät ↔ Material verknüpfen** – Many-to-Many-Beziehungen
 - **Suche & Status-Filter** – Echtzeit-Suche, Filterung nach Status
 - **Autocomplete** – Vorschläge aus bestehenden Einträgen
@@ -185,6 +186,12 @@ IT-Inventar-DB/
 ---
 
 ## Changelog
+
+### v5.4.0 – 2026-03-21
+- **Neu:** Vollständiges Audit-Log (Änderungshistorie) für alle Geräte- und Materialänderungen
+- **Neu:** Protokollierung aller ADD-, EDIT- und DELETE-Aktionen mit Feld, Alt- und Neuwert
+- **Neu:** Audit-Log-Dialog mit Filter nach Typ, Aktion und Datumsbereich, Farbcodierung und CSV-Export
+- **Neu:** Automatische Datenbankmigration (neue Tabelle `audit_log`)
 
 ### v5.3.2 – 2026-03-21
 - **Neu:** Garantiedatum und Wartungsdatum pro Gerät erfassbar (Format: YYYY-MM-DD)
